@@ -1,8 +1,8 @@
 <h1>Listado de héroes</h1>
 <mat-divider></mat-divider>
-<div fxLayout="row wrap">
-    <div fxFlex="20">
-        <mat-card *ngFor="let heroe of heroes">
+<div fxLayout="row wrap" fxLayoutAlign="center" fxLayoutGap="20px">
+    <div fxFlex.xs="100" fxFlex.sm="40" fxFlex.md="30" fxFlex.lg="15" *ngFor="let heroe of heroes">
+        <mat-card>
             <mat-card-header>
                 <mat-card-title>{{ heroe.superhero }}</mat-card-title>
                 <mat-card-subtitle>{{ heroe.alter_ego }}</mat-card-subtitle>
@@ -17,9 +17,6 @@
                 <button type="button" mat-button color="warn">Leer más...</button>
                 <button type="button" mat-button color="accent">Editar</button>
             </mat-card-actions>
-            <mat-card-footer>
-                <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
-            </mat-card-footer>
         </mat-card>
     </div>
 </div>
