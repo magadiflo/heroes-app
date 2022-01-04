@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { switchMap, tap } from 'rxjs';
 
@@ -10,6 +10,9 @@ import { HeroesService } from '../../services/heroes.service';
   selector: 'app-heroe',
   templateUrl: './heroe.component.html',
   styles: [
+    `img {
+      width: 100%;
+    }`
   ]
 })
 export class HeroeComponent implements OnInit {
@@ -18,7 +21,8 @@ export class HeroeComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private heroesService: HeroesService) { }
+    private heroesService: HeroesService,
+    private router: Router) { }
 
   ngOnInit(): void {
     // this.activatedRoute.params.subscribe(res => console.log(res)); de esta manera se recibe el parámetro
@@ -30,6 +34,10 @@ export class HeroeComponent implements OnInit {
         tap(heroe => console.log(heroe))
       )
       .subscribe(heroe => this.heroe = heroe);
+  }
+
+  regresar() {
+    this.router.navigate(['/heroes/listado']);
   }
 
 }
