@@ -4,7 +4,9 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Secciones
 Sección 12 HeroesApp - Rutas hijas y Lazyload<br> 
-Subido: https://zen-dijkstra-03fc19.netlify.app<br>
+Subido: https://zen-dijkstra-03fc19.netlify.app<br><br>
+
+Sección 13 HeroesApp - Angular Material & Angular Flex-Layout<br>
 
 ## Backend - JSON Server
 Se trabajó en el lado de desarrollo para el backend con JSON Server: 
