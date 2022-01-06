@@ -32,9 +32,15 @@
             <input matInput type="url" [(ngModel)]="heroe.alt_img" required aria-label="Foto Url">
         </mat-form-field>
         <br>
-        <button mat-raised-button color="accent" (click)="guardar()">
-            <mat-icon>edit</mat-icon> Guardar
-        </button>
+        <div fxLayout>
+            <button mat-raised-button color="accent" (click)="guardar()">
+                <mat-icon>edit</mat-icon> Guardar
+            </button>
+            <span class="spacer"></span>
+            <button *ngIf="heroe.id" type="button" mat-raised-button color="warn" (click)="borrar()">
+                <mat-icon>delete</mat-icon> Eliminar
+            </button>
+        </div>
     </div>
     <div fxFlex="50">
         <img [src]="heroe | imagen" alt="">

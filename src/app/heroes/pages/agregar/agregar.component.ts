@@ -64,4 +64,11 @@ export class AgregarComponent implements OnInit {
         .subscribe(resp => this.router.navigate(['/heroes/editar', resp.id]));
     }
   }
+
+  borrar(): void {
+    this.heroesService.borrarHeroe(this.heroe.id!)
+      .subscribe(resp => {
+        this.router.navigate(['/heroes']);
+      });
+  }
 }
