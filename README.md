@@ -8,6 +8,7 @@ Subido: https://zen-dijkstra-03fc19.netlify.app<br><br>
 
 Sección 13 HeroesApp - Angular Material & Angular Flex-Layout<br>
 Sección 14 HeroesApp - CRUD<br>
+Sección 15 HeroesApp - Protección de rutas<br>
 ## Backend - JSON Server
 Se trabajó en el lado de desarrollo para el backend con JSON Server: 
 https://www.npmjs.com/package/json-server<br>
