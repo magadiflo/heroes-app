@@ -24,7 +24,7 @@
             <mat-icon>menu</mat-icon>
         </button>
         <span class="spacer"></span>
-        <button type="button" mat-icon-button matTooltip="Cerrar sesión">
+        <button type="button" mat-icon-button (click)="logout()" matTooltip="Cerrar sesión">
             <mat-icon>logout</mat-icon>
         </button>
     </mat-toolbar>
