@@ -27,4 +27,8 @@ export class AuthService {
       );
   }
 
+  logout(): void {
+    this._auth = undefined;
+  }
+
 }
