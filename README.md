@@ -93,3 +93,38 @@ export class HeroesRoutingModule { }
 > por ejemplo como primer elemento del conjunto de rutas, cualquier otra ruta a la que queramos ingresar, por ejemplo
 > la ruta **search**, se detendrá en nuestra ruta **:id** (que en este ejemplo está como primer elemento), porque tomará 
 > el path **search** como si fuera el **id** que espera, por eso lo definimos casi al final.
+
+## Instalación de [Angular Material](https://material.angular.io/guide/getting-started)
+
+- Comenzaremos instalando **Angular Material**, para eso ejecutamos el siguiente comando:
+
+```bash
+ng add @angular/material
+```
+- Luego de verificar nos pedirá que elijamos un tema, yo eligiré: **Pink/Blue Grey**, aunque también está el **Custom** para hacerlo más personalizado.
+- Luego nos preguntará ¿Configurar estilos tipográficos globales de material angular?, de damos en **Yes**
+- Finalmente, nos preguntará si ¿incluir el módulo de animaciones angulares?, seleccionamos **Include and enable animation**
+
+## Instalando [Primeflex css](https://primeflex.org/installation)
+
+PrimeFlex es una biblioteca de utilidades CSS que presenta varios helpers, como un sistema de cuadrícula, flexbox, espaciado, elevación y más.
+PrimeFlex es una biblioteca de utilidades de CSS liviana y receptiva **que acompaña a las bibliotecas Prime UI** y también a las páginas web estáticas.
+Recordemos que **es el mismo que utilizamos en el proyecto de pipes-app**.
+
+Ejecutar el siguiente comando en nuestro proyecto de Angular
+
+```bash
+npm install primeflex
+```
+Luego de la instalación incluir la librería agregándola desde el **angular.json**
+
+```json
+"styles": [
+  "...",
+  "node_modules/primeflex/primeflex.min.css",
+  "..."
+],
+```
+**NOTA**
+> Otra forma de instalarlo es cargándolo mediante un CDN: <br>
+> ``<link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css">``
