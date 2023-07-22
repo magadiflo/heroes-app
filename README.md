@@ -128,3 +128,7 @@ Luego de la instalación incluir la librería agregándola desde el **angular.js
 **NOTA**
 > Otra forma de instalarlo es cargándolo mediante un CDN: <br>
 > ``<link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css">``
+
+## Íconos para Angular Material
+
+Ir a esta dirección [fonts.google](https://fonts.google.com/icons?selected=Material+Icons:bookmark)
