@@ -197,3 +197,35 @@ Como resultado tenemos lo que se muestra en la imagen:
 
 ![json-server-running](./src/assets/json-server-running.png)
 
+## [Variables de entorno - Angular 15+](https://angular.io/guide/build#configuring-application-environments)
+
+Desde la versión 15 ya no vienen por defecto el directorio **/environments** donde defíamos en sus archivos nuestras variables de entorno. Para poder crearlas simplemente ejecutamos el siguiente comando:
+
+````bash
+ng generate environments
+````
+
+Se nos crearán los siguientes archivos:
+
+```bash
+CREATE src/environments/environment.ts
+CREATE src/environments/environment.development.ts
+UPDATE angular.json
+```
+Como estamos trabajando en desarrollo, nuestra **URL del json-server** lo configuramos en el archivo **environment.development.ts**:
+
+````javascript
+// environment.development.ts
+export const environment = {
+  apiUrl: 'http://localhost:3000',
+};
+````
+
+Mientras que el archivo **environment.ts** lo dejamos vacío, ya que este archivo corresponde a un archivo de producción, eso significa que cuando construyamos el proyecto para producción, aquí debería ir la **URL** real, url del cual nuestra aplicación consumira en producción y al momento de construir la aplicación, angular tomará la url de este archivo:
+
+````javascript
+// environment.ts
+export const environment = {
+  apiUrl: '',
+};
+````
