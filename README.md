@@ -229,3 +229,22 @@ export const environment = {
   apiUrl: '',
 };
 ````
+
+## HeroesService - Traer información de los héroes
+
+Por lo general nuestras variables de entorno los usaremos en los **Services**. **La importación la debemos hacer del archivo de producción**, Angular sabe en qué ambiente nos encontramos, es decir, aunque ahora mismo estoy desarrollando me encuentro en ambiente de desarrollo, también el api del **json-server** está en el archivo **environment.development.ts**, pero la importación la debemos hacer del archivo **environment.ts** (el de producción) aunque este tenga el atributo **urlApi** vacío, como estamos desarrollando, Angular tomará el del archivo **environment.development.ts**.
+
+````javascript
+import { environment } from '../../../environments/environment'; //<--- Importando el archivo de producción
+import { Hero } from '../interfaces/hero.interface';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+export class HeroesService {
+
+  private readonly apiUrl: string = environment.apiUrl;
+
+}
+````
