@@ -132,3 +132,68 @@ Luego de la instalación incluir la librería agregándola desde el **angular.js
 ## Íconos para Angular Material
 
 Ir a esta dirección [fonts.google](https://fonts.google.com/icons?selected=Material+Icons:bookmark)
+
+## Heroes Backend - json-server
+
+En este punto del curso necesitamos un backend que nos proporcione endpoints para poder crear nuestra aplicación de héroes: listar, leer, eliminar, crear, etc. Para poder realizar este backend nos ayudaremos de una dependencia llamada **json-server**  y los datos los ubicaremos en un archivo llamado **db.json**.
+
+### Datos a Usar como Base de Datos en db.json para nuestro "Backend"
+
+Crearemos un .json con un conjunto de datos que simularán nuestros datos de héroes que serán usados por nuestro **backend** para ser enviados a nuestra aplicación de Angular.
+
+En nuestro proyecto de **Angular** creamos un directorio llamado **/data** y dentro de él un archivo llamado **db.json** conteniendo datos de héroes y usuarios. Para ver los datos [visitar el siguiente enlace](https://gist.github.com/Klerith/e09f16f2ae9f6c9ebce6c648fc136072). Crearemos además otro archivo **db-back.json** para tener los datos originales respaldados.
+
+
+### [json-server](https://www.npmjs.com/package/json-server)
+
+Obtenga una API REST falsa completa sin codificación en menos de 30 segundos.
+
+Para poder instalarlo, los creadores de esta dependencia nos recomiendan hacerlo de manera global **(-g)**, pero en nuestro caso lo haremos de manera local, dentro de nuestra aplicación de Angular y solo en nuestras dependencias de desarrollo (no estará disponible en las dependencias de producción), por lo tanto, abrimos una consola, nos ubicamos en nuestro proyecto y ejecutamos el siguiente comando:
+
+````bash
+npm install --save-dev json-server
+````
+
+Una vez finalizada la instalación de **json-server** veremos que el nombre de la dependencia se registró en las dependencias de desarrollo dentro del **package.json:**
+
+````javascript
+{
+  "devDependencies": {
+    "...",
+    "json-server": "^0.17.3", //<-- Disponible en modo de desarrollo
+    "..."
+  }
+}
+````
+
+Para ejecutar nuestro **json-server**, posicionados mediante la consola en la raiz del proyecto de angular, utilizaremos el siguiente comando:
+
+````bash
+npx json-server --watch .\data\db.json
+````
+
+**NOTA** en versiones anteriores se ejecutaba: ``json-server --watch db.json``, mientras que ahora hay que agregarle el prefijo **npx** sino no se ejecutará.
+
+Como alternativa a ejecutar todo el comando mostrado del **json-server** podemos utilizar el **package.json** para poder crearnos un script de comandos más corto **(precisamente esta es la forma que usaré)**, para eso en el **package.json** agregamos nuestro comando:
+
+````javascript
+{
+  "name": "heroes-app",
+  "version": "0.0.0",
+  "scripts": {
+    "backend": "npx json-server --watch .\\data\\db.json", //<-- Nuestro nuevo comando más corto es: backend
+    "..."
+  }
+}
+````
+
+Ahora, para poder ejecutarlo, simplemente posicionados en la raíz del proyecto ejecutamos:
+
+````bash
+npm run backend
+````
+
+Como resultado tenemos lo que se muestra en la imagen:
+
+![json-server-running](./src/assets/json-server-running.png)
+
