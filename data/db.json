@@ -174,7 +174,7 @@
       "alter_ego": "Bross",
       "first_appearance": "2023",
       "characters": "Mario",
-      "alt_img": "mario.png"
+      "alt_img": "https://us.cdn.eltribuno.com/112018/1541256776811.jpg"
     },
     {
       "id": "SFtzAuP",
@@ -184,6 +184,15 @@
       "first_appearance": "1989",
       "characters": "Gokú, Vegeta",
       "alt_img": "https://depor.com/resizer/25quKBxP8Ti7cjCcmnR887FHER0=/1200x1200/smart/filters:format(jpeg):quality(75)/cloudfront-us-east-1.images.arcpublishing.com/elcomercio/DAYT2F5NUNB7VPAFKUPHNDXVQA.jpg"
+    },
+    {
+      "id": "2AU8_wi",
+      "superhero": "Vegeta",
+      "publisher": "DC Comics",
+      "alter_ego": "Principe",
+      "first_appearance": "1990",
+      "characters": "Veguetiña",
+      "alt_img": "https://i.blogs.es/103c3b/dragon-ball-super-asi-se-ve-vegeta-en-modo-bestia-en-intimidante-fanart-que-podria-estar-en-los-planes-de-toyotaro1/1366_2000.jpeg"
     }
   ]
 }
