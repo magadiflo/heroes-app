@@ -1,1 +1,27 @@
-<p>hero-page works!</p>
+<div class="grid" *ngIf="hero; else loading">
+  <div class="col-12 sm:col-6">
+    <img [src]="hero | heroImage" [alt]="hero.alt_img">
+  </div>
+  <div class="col-12 sm:col-6">
+    <h2 class="pb-2 border-right-2 border-bottom-2">{{ hero.superhero }}</h2>
+    <mat-divider class="mb-2"></mat-divider>
+    <mat-chip-listbox aria-label="Fish selection">
+      <mat-chip-option *ngFor="let character of hero.characters.split(',')">{{character}}</mat-chip-option>
+    </mat-chip-listbox>
+    <mat-list>
+      <mat-list-item><b>id: </b>{{ hero.id }}</mat-list-item>
+      <mat-list-item><b>publisher: </b>{{ hero.publisher }}</mat-list-item>
+      <mat-list-item><b>alter_ego: </b>{{ hero.alter_ego }}</mat-list-item>
+      <mat-list-item><b>first_appearance: </b>{{ hero.first_appearance }}</mat-list-item>
+    </mat-list>
+
+    <button mat-button color="warn" [routerLink]="['/heroes', 'list']">
+      <mat-icon>arrow_back</mat-icon>Regresar
+    </button>
+  </div>
+</div>
+<ng-template #loading>
+  <div class="text-center">
+    <mat-icon>hourglass_full</mat-icon> cargando...
+  </div>
+</ng-template>
