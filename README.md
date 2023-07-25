@@ -5,7 +5,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 ---
 
 
-## Ruta hijas y LazyLoad
+# Sección: Rutas hijas y LazyLoading
 
 En el **AppRoutingModule** definimos nuestras rutas principales aplicando **LazyLoad**. Únicamente aplicaremos **LazyLoad** al módulo de **Auth** y al **Heroes**, mientras que el módulo **Shared**  será importado directamente en el **AppModule**, de esa forma utilizaremos los componentes definidos en el **Shared** de manera directa, tal como sucede con el componente **Error404PageComponent**.
 
@@ -94,7 +94,13 @@ export class HeroesRoutingModule { }
 > la ruta **search**, se detendrá en nuestra ruta **:id** (que en este ejemplo está como primer elemento), porque tomará 
 > el path **search** como si fuera el **id** que espera, por eso lo definimos casi al final.
 
+---
+
+# Sección: Angular Material
+
+
 ## Instalación de [Angular Material](https://material.angular.io/guide/getting-started)
+
 
 - Comenzaremos instalando **Angular Material**, para eso ejecutamos el siguiente comando:
 
