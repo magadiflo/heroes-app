@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+
+import { HeroesService } from '../../services/heroes.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-search-page',
@@ -6,6 +9,14 @@ import { Component } from '@angular/core';
   styles: [
   ]
 })
-export class SearchPageComponent {
+export class SearchPageComponent implements OnInit {
+
+  public searchInput = new FormControl();
+
+  constructor(private _heroesService: HeroesService) { }
+
+  ngOnInit(): void {
+
+  }
 
 }
