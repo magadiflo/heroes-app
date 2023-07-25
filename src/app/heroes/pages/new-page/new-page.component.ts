@@ -22,9 +22,11 @@ export class NewPageComponent {
     alt_img: new FormControl<string>(''),
   });
 
-  constructor(private _heroesService: HeroesService) { }
+  public get currentHero(): Hero {
+    return this.heroForm.value as Hero;
+  }
 
-  public hero: Hero = <Hero>{};
+  constructor(private _heroesService: HeroesService) { }
 
   public publishers = [
     { id: 'DC Comics', description: 'DC - Comics' },
@@ -32,7 +34,11 @@ export class NewPageComponent {
   ];
 
   onSubmit(): void {
+    if (this.heroForm.invalid) return;
     console.log({ formIsValid: this.heroForm.valid, value: this.heroForm.value });
+
+    this._heroesService.addHero(this.currentHero)
+      .subscribe(heroDB => console.log(heroDB));
   }
 
 }

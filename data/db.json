@@ -166,6 +166,15 @@
       "alter_ego": "Norrin Radd",
       "first_appearance": "The Fantastic Four #48",
       "characters": "Norrin Radd"
+    },
+    {
+      "id": "I-rbh9x",
+      "superhero": "Mario",
+      "publisher": "DC Comics",
+      "alter_ego": "Bross",
+      "first_appearance": "2023",
+      "characters": "Mario",
+      "alt_img": "mario.png"
     }
   ]
 }
