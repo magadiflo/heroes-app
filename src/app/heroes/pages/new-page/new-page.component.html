@@ -4,39 +4,43 @@
   <div class="col-12 sm:col-6">
     <mat-card>
       <mat-card-content>
-        <div class="grid">
+        <form [formGroup]="heroForm" class="grid" (ngSubmit)="onSubmit()">
           <mat-form-field class="col-12 sm:col-6">
             <mat-label>Súper héroe</mat-label>
-            <input matInput type="text" required>
+            <input matInput type="text" required formControlName="superhero">
           </mat-form-field>
           <mat-form-field class="col-12 sm:col-6">
             <mat-label>Alter ego</mat-label>
-            <input matInput type="text" required>
+            <input matInput type="text" required formControlName="alter_ego">
           </mat-form-field>
           <mat-form-field class="col-12">
             <mat-label>Primera aparición</mat-label>
-            <input matInput type="text" required>
+            <input matInput type="text" required formControlName="first_appearance">
           </mat-form-field>
           <mat-form-field class="col-12">
             <mat-label>Personajes</mat-label>
-            <input matInput type="text" required>
+            <input matInput type="text" required formControlName="characters">
           </mat-form-field>
           <mat-form-field class="col-12">
             <mat-label>Creador</mat-label>
-            <mat-select>
+            <mat-select formControlName="publisher">
               <mat-option *ngFor="let publisher of publishers" [value]="publisher.id">
                 {{ publisher.description}}
               </mat-option>
             </mat-select>
           </mat-form-field>
-        </div>
+          <mat-form-field class="col-12">
+            <mat-label>Imagen alternativa</mat-label>
+            <input matInput type="text" formControlName="alt_img">
+          </mat-form-field>
+        </form>
         <div class="flex justify-content-between">
           <button mat-flat-button color="warn">
             <mat-icon>delete_forever</mat-icon>
             Borrar
           </button>
 
-          <button mat-raised-button color="accent">
+          <button mat-raised-button color="accent" (click)="onSubmit()">
             <mat-icon>save</mat-icon>
             Guardar
           </button>
