@@ -175,6 +175,15 @@
       "first_appearance": "2023",
       "characters": "Mario",
       "alt_img": "mario.png"
+    },
+    {
+      "id": "SFtzAuP",
+      "superhero": "Gokú",
+      "publisher": "Marvel Comics",
+      "alter_ego": "Kakaroto",
+      "first_appearance": "1989",
+      "characters": "Gokú, Vegeta",
+      "alt_img": "https://depor.com/resizer/25quKBxP8Ti7cjCcmnR887FHER0=/1200x1200/smart/filters:format(jpeg):quality(75)/cloudfront-us-east-1.images.arcpublishing.com/elcomercio/DAYT2F5NUNB7VPAFKUPHNDXVQA.jpg"
     }
   ]
 }

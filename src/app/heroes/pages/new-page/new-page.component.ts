@@ -35,10 +35,26 @@ export class NewPageComponent {
 
   onSubmit(): void {
     if (this.heroForm.invalid) return;
-    console.log({ formIsValid: this.heroForm.valid, value: this.heroForm.value });
 
+    if (this.currentHero.id) {
+      this._updateHero();
+    } else {
+      this._saveHero();
+    }
+  }
+
+  private _saveHero() {
     this._heroesService.addHero(this.currentHero)
-      .subscribe(heroDB => console.log(heroDB));
+      .subscribe(heroDB => {
+        // TODO: mostrar snackbar
+      });
+  }
+
+  private _updateHero() {
+    this._heroesService.updateHero(this.currentHero)
+      .subscribe(heroDB => {
+        // TODO: mostrar snackbar y navegar a /heroes/edit/ hero.id
+      });
   }
 
 }
