@@ -254,3 +254,27 @@ export class HeroesService {
 
 }
 ````
+
+---
+
+
+# Sección: Protección de rutas
+
+
+## AuthService - Servicio de Authenticación
+
+En este capítulo hay un momendo que se habla de la referencia de objetos en Javascript y el **uso del método global structuredClone()**.
+
+### structuredClone()
+
+El método global structuredClone() **crea un clon profundo de un valor dado utilizando el algoritmo de clonación estructurada.**
+
+El método también permite que los objetos transferibles en el valor original se transfieran en lugar de clonarse al nuevo objeto. Los objetos transferidos se separan del objeto original y se adjuntan al nuevo objeto; ya no son accesibles en el objeto original.
+
+El valor devuelto es una copia profunda del valor original.
+
+Una copia profunda crea un nuevo objeto con su propio conjunto de datos, separado del objeto original. Esto significa que **si se modifica el objeto original, la copia no se verá afectada.**
+
+Anteriormente, usábamos el **Spread operator** para realizar copias superficiales de objetos, **lo que significa que crea un nuevo objeto y copia las propiedades enumerables de un objeto a otro,** manteniendo el mismo nivel de profundidad. El objeto copiado será un objeto independiente con las mismas propiedades y valores que el objeto original. Cualquier modificación en el objeto original no afectará al objeto copiado y viceversa, ya que son objetos diferentes en memoria: Ejempo usando el operador **Spread operator**: ``{...user}``. 
+
+Ahora, **de forma nativa, javascript ya nos proporciona un método para hacer lo mismo y mucho mejor pues la copia es profunda**, hablo del uso del método global **structuredClone()**
