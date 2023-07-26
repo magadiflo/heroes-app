@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { switchMap } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
 
 import { Hero, Publisher } from '../../interfaces/hero.interface';
 import { HeroesService } from '../../services/heroes.service';
@@ -86,12 +86,16 @@ export class NewPageComponent implements OnInit {
       data: this.currentHero,
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this._heroesService.deleteHeroById(this.currentHero.id)
-          .subscribe(isDeleted => this._router.navigate(['/heroes', 'list']));
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(
+        filter((result: boolean) => result), // Solo filtrará si la condición es verdadera, eso significa solo pasará si da click en OK borrar.
+        switchMap((result: boolean) => this._heroesService.deleteHeroById(this.currentHero.id)),
+        filter((wasDeleted: boolean) => wasDeleted)
+      )
+      .subscribe(res => {
+        this._showSnackBar(`${this.currentHero.superhero} eliminado!`);
+        this._router.navigate(['/heroes', 'list']);
+      });
   }
 
   private _showSnackBar(message: string): void {
