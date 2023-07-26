@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 
 import { environment } from '../../../environments/environment';
 import { User } from '../interfaces/user.interface';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 
 
 @Injectable({
@@ -19,6 +19,20 @@ export class AuthService {
   }
 
   constructor(private _http: HttpClient) { }
+
+  checkAuthentication(): Observable<boolean> | boolean {
+    if (!localStorage.getItem('token')) return false;
+
+    const token = localStorage.getItem('token');
+    // TODO Aquí iríamos al backend a verificar si el token es válido
+
+    return this._http.get<User>(`${this.apiUrl}/users/1`)
+      .pipe(
+        tap(user => this.user = user),
+        map(user => !!user), //* !!user, lo único que hace es asegurarse de devolver un booleano
+        catchError(err => of(false))
+      );
+  }
 
   login(email: string, password: string): Observable<User> {
     return this._http.get<User>(`${this.apiUrl}/users/1`)
