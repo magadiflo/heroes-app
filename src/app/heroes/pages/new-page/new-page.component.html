@@ -1,4 +1,4 @@
-<h1>Agregar Héroe <small>Súperman</small></h1>
+<h1>{{ currentHero.id ? 'Editar' : 'Agregar'}} Héroe</h1>
 <mat-divider class="mb-2"></mat-divider>
 <div class="grid flex flex-column-reverse sm:flex-row">
   <div class="col-12 sm:col-6">
@@ -35,11 +35,11 @@
           </mat-form-field>
         </form>
         <div class="flex justify-content-between">
-          <button mat-flat-button color="warn">
+          <button *ngIf="currentHero.id" mat-flat-button color="warn">
             <mat-icon>delete_forever</mat-icon>
             Borrar
           </button>
-
+          <span></span>
           <button mat-raised-button color="accent" (click)="onSubmit()">
             <mat-icon>save</mat-icon>
             Guardar
