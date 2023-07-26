@@ -1,6 +1,6 @@
 <div class="grid" *ngIf="hero; else loading">
   <div class="col-12 sm:col-6">
-    <img [src]="hero | heroImage" [alt]="hero.alt_img">
+    <img [src]="hero | heroImage" [alt]="hero.alt_img" class="w-full">
   </div>
   <div class="col-12 sm:col-6">
     <h2 class="pb-2 border-right-2 border-bottom-2">{{ hero.superhero }}</h2>
