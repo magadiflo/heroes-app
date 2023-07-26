@@ -1,6 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { filter, switchMap, tap } from 'rxjs';
 
-import { Hero } from '../../interfaces/hero.interface';
+import { Hero, Publisher } from '../../interfaces/hero.interface';
+import { HeroesService } from '../../services/heroes.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-new-page',
@@ -8,13 +15,93 @@ import { Hero } from '../../interfaces/hero.interface';
   styles: [
   ]
 })
-export class NewPageComponent {
+export class NewPageComponent implements OnInit {
 
-  public hero: Hero = <Hero>{};
+  public heroForm: FormGroup = new FormGroup({
+    id: new FormControl<string>(''),
+    superhero: new FormControl<string>('', { nonNullable: true }),
+    publisher: new FormControl<Publisher>(Publisher.DCComics),
+    alter_ego: new FormControl<string>(''),
+    first_appearance: new FormControl<string>(''),
+    characters: new FormControl<string>(''),
+    alt_img: new FormControl<string>(''),
+  });
+
+  public get currentHero(): Hero {
+    return this.heroForm.value as Hero;
+  }
+
+  constructor(
+    private _router: Router,
+    private _activatedRoute: ActivatedRoute,
+    private _snackBar: MatSnackBar,
+    private _dialog: MatDialog,
+    private _heroesService: HeroesService) { }
+
+  ngOnInit(): void {
+    if (!this._router.url.includes('edit')) return;
+    this._activatedRoute.params
+      .pipe(
+        switchMap(({ id }) => this._heroesService.getHeroById(id))
+      )
+      .subscribe(hero => {
+        if (!hero) this._router.navigate(['/heroes', 'list']);
+        this.heroForm.reset(hero);
+      });
+  }
 
   public publishers = [
-    { id: 'DC Comics', description: 'DC - Comics'},
-    { id: 'Marvel Comics', description: 'Marvel - Comics'}
+    { id: 'DC Comics', description: 'DC - Comics' },
+    { id: 'Marvel Comics', description: 'Marvel - Comics' }
   ];
+
+  onSubmit(): void {
+    if (this.heroForm.invalid) return;
+
+    if (this.currentHero.id) {
+      this._updateHero();
+    } else {
+      this._saveHero();
+    }
+  }
+
+  private _saveHero() {
+    this._heroesService.addHero(this.currentHero)
+      .subscribe(heroDB => {
+        this._showSnackBar(`${heroDB.superhero} guardado!`);
+        this._router.navigate(['/heroes', 'edit', heroDB.id]);
+      });
+  }
+
+  private _updateHero() {
+    this._heroesService.updateHero(this.currentHero)
+      .subscribe(heroDB => {
+        this._showSnackBar(`${heroDB.superhero} actualizado!`);
+      });
+  }
+
+  onConfirmDeleteHero() {
+    if (!this.currentHero.id) throw Error('El id del Hero es requerido'); //* Solo por siacaso
+    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
+      data: this.currentHero,
+    });
+
+    dialogRef.afterClosed()
+      .pipe(
+        filter((result: boolean) => result), // Solo filtrará si la condición es verdadera, eso significa solo pasará si da click en OK borrar.
+        switchMap((result: boolean) => this._heroesService.deleteHeroById(this.currentHero.id)),
+        filter((wasDeleted: boolean) => wasDeleted)
+      )
+      .subscribe(res => {
+        this._showSnackBar(`${this.currentHero.superhero} eliminado!`);
+        this._router.navigate(['/heroes', 'list']);
+      });
+  }
+
+  private _showSnackBar(message: string): void {
+    this._snackBar.open(message, 'cerrar', {
+      duration: 2500,
+    })
+  }
 
 }
