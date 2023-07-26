@@ -2,10 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { switchMap } from 'rxjs';
 
 import { Hero, Publisher } from '../../interfaces/hero.interface';
 import { HeroesService } from '../../services/heroes.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-new-page',
@@ -33,6 +35,7 @@ export class NewPageComponent implements OnInit {
     private _router: Router,
     private _activatedRoute: ActivatedRoute,
     private _snackBar: MatSnackBar,
+    private _dialog: MatDialog,
     private _heroesService: HeroesService) { }
 
   ngOnInit(): void {
@@ -75,6 +78,20 @@ export class NewPageComponent implements OnInit {
       .subscribe(heroDB => {
         this._showSnackBar(`${heroDB.superhero} actualizado!`);
       });
+  }
+
+  onConfirmDeleteHero() {
+    if (!this.currentHero.id) throw Error('El id del Hero es requerido'); //* Solo por siacaso
+    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
+      data: this.currentHero,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this._heroesService.deleteHeroById(this.currentHero.id)
+          .subscribe(isDeleted => this._router.navigate(['/heroes', 'list']));
+      }
+    });
   }
 
   private _showSnackBar(message: string): void {

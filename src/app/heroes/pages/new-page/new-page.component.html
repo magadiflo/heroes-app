@@ -35,7 +35,7 @@
           </mat-form-field>
         </form>
         <div class="flex justify-content-between">
-          <button *ngIf="currentHero.id" mat-flat-button color="warn">
+          <button *ngIf="currentHero.id" (click)="onConfirmDeleteHero()" mat-flat-button color="warn">
             <mat-icon>delete_forever</mat-icon>
             Borrar
           </button>
