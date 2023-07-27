@@ -20,8 +20,8 @@ export class AuthService {
 
   constructor(private _http: HttpClient) { }
 
-  checkAuthentication(): Observable<boolean> | boolean {
-    if (!localStorage.getItem('token')) return false;
+  checkAuthentication(): Observable<boolean> {
+    if (!localStorage.getItem('token')) return of(false);
 
     const token = localStorage.getItem('token');
     // TODO Aquí iríamos al backend a verificar si el token es válido

@@ -3,14 +3,20 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { Error404PageComponent } from './shared/pages/error404-page/error404-page.component';
 
+import { canMatchHeroesGuard } from './auth/guards/heroes.guard';
+import { canMatchAuthGuard } from './auth/guards/auth.guard';
+
+
 const routes: Routes = [
   {
     path: 'auth',
     loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
+    canMatch: [canMatchAuthGuard],
   },
   {
     path: 'heroes',
     loadChildren: () => import('./heroes/heroes.module').then(m => m.HeroesModule),
+    canMatch: [canMatchHeroesGuard],
   },
   {
     path: '404',
