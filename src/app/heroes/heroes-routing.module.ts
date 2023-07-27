@@ -7,10 +7,14 @@ import { SearchPageComponent } from './pages/search-page/search-page.component';
 import { ListPageComponent } from './pages/list-page/list-page.component';
 import { HeroPageComponent } from './pages/hero-page/hero-page.component';
 
+import { canActivateHeroesGuard } from '../auth/guards/heroes.guard';
+
+
 const routes: Routes = [
   {
     path: '',
     component: LayoutPageComponent,
+    canActivate: [canActivateHeroesGuard],
     children: [
       { path: 'new-hero', component: NewPageComponent, },
       { path: 'search', component: SearchPageComponent, },

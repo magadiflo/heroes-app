@@ -254,3 +254,283 @@ export class HeroesService {
 
 }
 ````
+
+---
+
+
+# Sección: Protección de rutas
+
+
+## AuthService - Servicio de Authenticación
+
+En este capítulo hay un momendo que se habla de la referencia de objetos en Javascript y el **uso del método global structuredClone()**.
+
+### structuredClone()
+
+El método global structuredClone() **crea un clon profundo de un valor dado utilizando el algoritmo de clonación estructurada.**
+
+El método también permite que los objetos transferibles en el valor original se transfieran en lugar de clonarse al nuevo objeto. Los objetos transferidos se separan del objeto original y se adjuntan al nuevo objeto; ya no son accesibles en el objeto original.
+
+El valor devuelto es una copia profunda del valor original.
+
+Una copia profunda crea un nuevo objeto con su propio conjunto de datos, separado del objeto original. Esto significa que **si se modifica el objeto original, la copia no se verá afectada.**
+
+Anteriormente, usábamos el **Spread operator** para realizar copias superficiales de objetos, **lo que significa que crea un nuevo objeto y copia las propiedades enumerables de un objeto a otro,** manteniendo el mismo nivel de profundidad. El objeto copiado será un objeto independiente con las mismas propiedades y valores que el objeto original. Cualquier modificación en el objeto original no afectará al objeto copiado y viceversa, ya que son objetos diferentes en memoria: Ejempo usando el operador **Spread operator**: ``{...user}``. 
+
+Ahora, **de forma nativa, javascript ya nos proporciona un método para hacer lo mismo y mucho mejor pues la copia es profunda**, hablo del uso del método global **structuredClone()**
+
+## Guards de Angular
+
+Anteriormente **se trabajan los Guards en clases que eran servicios** que implementaban **interfaces**. A continuación se muestra de manera breve la forma de cómo se hacía:
+
+````typescript
+import { Injectable } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivate, CanLoad, Route, RouterStateSnapshot, UrlSegment, Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
+
+import { AuthService } from '../services/auth.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard implements CanLoad, CanActivate {
+
+  constructor(private authService: AuthService, private router: Router) { }
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+    return this._isAuthenticated();
+  }
+
+  canLoad(route: Route, segments: UrlSegment[]): Observable<boolean> | Promise<boolean> | boolean {
+    return this._isAuthenticated();
+  }
+
+  private _isAuthenticated(): Observable<boolean> {
+    return this.authService.verifyAuthentication()
+      .pipe(
+        tap(isAuthenticate => {
+          if (!isAuthenticate) {
+            this.router.navigate(['./auth', 'login'])
+          }
+        })
+      );
+  }
+}
+````
+
+Actualmente, estas interfaces están deprecadas ya que ahora se está orientado al uso de tipo de funciones. ``CanMatchFn, CanActivateFn``, etc., es decir, no necesitamos crear una clase sino solo con funciones. Más adelante veremos el ejemplo.
+
+Para poder crear Guards desde Angular CLI podemos ejecutar el siguiente comando ``ng g guard mi-guard`` tal como se muestra en la imagen inferior.
+
+![guard-CanMatch](./src/assets/can-match-auth.png)
+
+**NOTA**
+
+> Anteriormente se podía elegir más de un tipo de guard y el CLI los creaba, pero ahora, al momento de ejecutar
+> el comando de la creación del guard, solo podemos elegir uno por archivo de creación. Si seleccionamos más de
+> una opción, Angular CLI nos mostrará un error. Pero es solo para la creación del archivo junto a nuestro
+> método guard. Si queremos utilizar un único archivo que contenga más de un Guard, podemos crearlos por separado
+> y luego lo unimos, tal como lo hice yo en esta sección.
+
+
+### ¿Qué son los Guards?
+
+**[Fuente: Angular.io](https://angular.io/guide/router-tutorial-toh#milestone-5-route-guards)**
+
+Son elementos que se utilizan para **controlar el acceso a ciertas rutas en una aplicación web.** Los guards son una característica importante de Angular que **permite proteger y controlar la navegación en función de ciertas condiciones**, es decir, a veces necesita controlar el acceso a diferentes partes de su aplicación por varias razones, algunas de las cuales pueden incluir las siguientes:
+
+- Quizás el usuario no esté autorizado para navegar hasta el componente de destino.
+- Tal vez el usuario debe iniciar sesión primero (autenticarse).
+- Tal vez debería obtener algunos datos antes de mostrar el componente de destino.
+- Es posible que desee guardar los cambios pendientes antes de abandonar un componente.
+- Puede preguntarle al usuario si está bien descartar los cambios pendientes en lugar de guardarlos.
+
+``El valor de retorno de un guard controla el comportamiento del enrutador:``
+
+- **true**, el proceso de la navegación continúa.
+- **false**, el proceso de la navegación se detiene y elusuario se queda quieto.
+- **UrlTree**, Se cancela la navegación actual y se inicia una nueva navegación al UrlTree devuelto.
+
+
+**El router** admite varios métodos de protección:
+
+- **canActivate**, para mediar la navegación a una ruta.
+- **canActivateChild**, para mediar la navegación a una ruta secundaria.
+- **canDeactivate**, para alejar la navegación de la ruta actual.
+- **resolve**, para realizar la recuperación de datos de ruta antes de la activación de la ruta.
+- **canMatch**, para controlar si se debe usar una ruta, incluso si la ruta coincide con el segmento de URL.
+
+**Con la excepción de canMatch**, si algún guardia devuelve falso, **los guardias pendientes que no se han completado se cancelan** y se cancela toda la navegación. **Si un protector canMatch devuelve falso**, el **router continúa procesando el resto de las rutas** para ver si una configuración de ruta diferente coincide con la URL.
+
+En nuestro caso trabajaremos con **canActivate y el canMatch**:
+
+### canActivate: requiere autenticación
+Las aplicaciones a menudo restringen el acceso a un área de funciones en función de quién es el usuario. Puede permitir el acceso solo a usuarios autenticados o a usuarios con un rol específico. Puede bloquear o limitar el acceso hasta que se active la cuenta del usuario.
+
+**El guard canActivate** es la herramienta para administrar estas reglas comerciales de navegación.
+
+### canMatch: protección del acceso no autorizado a los módulos de funciones
+
+Si observamos el HeroesRoutingModule, veremos que ya estamos protegiendo nuestro  HeroesModule con un guard canActivate que evita que los usuarios no autorizados accedan a las páginas de los héroes (list, new-hero, search, etc.). Redirige a la página de inicio de sesión si el usuario no está autorizado o como en nuestro cas, no está logueado.
+
+**Pero el router sigue cargando HeroesModule incluso si el usuario no puede visitar ninguno de sus componentes.** Idealmente, solo cargaría HeroesModule si el usuario ha iniciado sesión. En resumen, si la validación de los guards **canMatch** devuelven falso, **el módulo nunca se va a cargar.**
+
+``NOTA: esta característica es similar a la que usaba el canLoad que ahora ya se encuentra deprecado y se recomienda hacer uso del canMatch en su reemplazo``.
+
+Un guard canMatch controla si el enrutador intenta hacer coincidir una ruta. Esto le permite tener varias configuraciones de ruta que comparten la misma ruta pero se combinan en función de diferentes condiciones. Este enfoque permite que el enrutador coincida con la ruta comodín en su lugar.
+
+## Creando nuestros Guards para las rutas heroes y auth
+
+Guard **CanMatchFn** y **CanActivateFn** para la ruta **heroes**.
+````typescript
+import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { Observable, tap } from 'rxjs';
+
+import { AuthService } from '../services/auth.service';
+
+
+export const canMatchHeroesGuard: CanMatchFn = (route, segments) => {
+  console.log('CanMatch Heroes');
+  return checkAuthStatus();
+};
+
+export const canActivateHeroesGuard: CanActivateFn = (route, state) => {
+  console.log('CanActivate Heroes');
+  return checkAuthStatus();
+};
+
+const checkAuthStatus = (): Observable<boolean> => {
+  const router = inject(Router);
+  const authService = inject(AuthService);
+  return authService.checkAuthentication()
+    .pipe(
+      tap(isAuthenticated => console.log("¿está autenticado?: " + isAuthenticated)),
+      tap(isAuthenticated => {
+        if (!isAuthenticated) {
+          router.navigate(['/auth', 'login']);
+        }
+      }),
+    );
+}
+````
+
+Guard **CanMatchFn** y **CanActivateFn** para la ruta **auth**.
+````typescript
+import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { tap, map, Observable } from 'rxjs';
+
+import { AuthService } from '../services/auth.service';
+
+export const canMatchAuthGuard: CanMatchFn = (route, segments) => {
+  console.log('CanMatch Auth');
+  return checkAuthStatus();
+};
+
+export const canActivateAuthGuard: CanActivateFn = (route, state) => {
+  console.log('CanActivate Auth');
+  return checkAuthStatus();
+};
+
+const checkAuthStatus = (): Observable<boolean> => {
+  const router = inject(Router);
+  const authService = inject(AuthService);
+  return authService.checkAuthentication()
+    .pipe(
+      tap(isAuthenticated => console.log("¿está autenticado?: " + isAuthenticated)),
+      tap(isAuthenticated => {
+        if (isAuthenticated) {
+          router.navigate(['./heroes', 'list']);
+        }
+      }),
+      map(isAuthenticate => !isAuthenticate) //* Si no está autenticado retornamos true para que pueda ingresar al login
+    );
+}
+````
+
+## Protegiendo nuestras rutas heroes y auth
+
+El siguiente fragmento de código corresponde a las rutas principales del proyecto y si observamos, estamos trabajando con **LazyLoading**,
+por lo tanto, aquí utilizaremos el método de protección **canMatch**, de esta manera, como lo explicábamos en la parte superior, 
+**si el guard retorna un false, el módulo nunca será cargado:**
+
+````typescript
+/* other imports */
+import { canMatchHeroesGuard } from './auth/guards/heroes.guard';
+import { canMatchAuthGuard } from './auth/guards/auth.guard';
+
+const routes: Routes = [
+  {
+    path: 'auth',
+    loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
+    canMatch: [canMatchAuthGuard],
+  },
+  {
+    path: 'heroes',
+    loadChildren: () => import('./heroes/heroes.module').then(m => m.HeroesModule),
+    canMatch: [canMatchHeroesGuard],
+  },
+  {
+    path: '404',
+    component: Error404PageComponent,
+  },
+  { path: '', redirectTo: 'heroes', pathMatch: 'full', },
+  { path: '**', redirectTo: '404', }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+````
+
+Ahora, para los módulos que contienen las rutas hijas, utilizaremos el método de protección **canActivate**:
+
+````typescript
+/* other code */
+const routes: Routes = [
+  {
+    path: '',
+    component: LayoutPageComponent,
+    canActivate: [canActivateHeroesGuard],
+    children: [
+      { path: 'new-hero', component: NewPageComponent, },
+      { path: 'search', component: SearchPageComponent, },
+      { path: 'edit/:id', component: NewPageComponent, },
+      { path: 'list', component: ListPageComponent, },
+      { path: ':id', component: HeroPageComponent, },
+      { path: '**', redirectTo: 'list', },
+    ],
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class HeroesRoutingModule { }
+````
+
+````typescript
+/* other code */
+const routes: Routes = [
+  {
+    path: '',
+    component: LayoutPageComponent,
+    canActivate: [canActivateAuthGuard],
+    children: [
+      { path: 'login', component: LoginPageComponent, },
+      { path: 'register', component: RegisterPageComponent, },
+      { path: '**', redirectTo: 'login', },
+    ]
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class AuthRoutingModule { }
+````
