@@ -23,8 +23,10 @@ const routes: Routes = [
     path: '404',
     component: Error404PageComponent, // <-- Agregando componente directo
   },
-  { path: '', redirectTo: 'heroes', pathMatch: 'full', }, //Esta ruta vacía '', sería la raíz de nuestro dominio: Ejmp. www.my-web-site.com 
-  { path: '**', redirectTo: '404', }
+  //* www.my-web-site.com/ <--- '', pero debo ponerle el pathMatch='full' ya que por defecto
+  //* todas las rutas tienen un string vacío al inicio
+  { path: '', redirectTo: '/heroes', pathMatch: 'full', }, 
+  { path: '**', redirectTo: '/404', }
 ];
 
 @NgModule({
@@ -34,12 +36,64 @@ const routes: Routes = [
 export class AppRoutingModule { }
 ```
 
+**IMPORTANTE**
+
+- `Ruta principal:` En el caso de la ruta principal, al usar `redirectTo`, se debe especificar la ruta completa **(ruta absoluta)**, incluyendo el `/`, ya que **la redirección se realiza a nivel de la raíz de la aplicación.**, por ejemplo: ` { path: '', redirectTo: '/heroes', pathMatch: 'full', },`
+
+- `Rutas hijas:` Cuando se define el `redirectTo` en las rutas hijas, la redirección debe ser **relativa** al contexto de la ruta actual. Por lo tanto, no es necesario incluir el `/` al especificar la redirección. Esto se debe a que las rutas hijas ya están anidadas dentro de una ruta principal y la redirección debe ser relativa a esa ubicación. Veamos el siguiente ejemplo que ilustra lo mencionado `{ path: '**', redirectTo: 'login', },`:
+
+```typescript
+const routes: Routes = [
+  {
+    path: '',
+    component: LayoutPageComponent,
+    canActivate: [canActivateAuthGuard],
+    children: [
+      { path: 'login', component: LoginPageComponent, },
+      { path: 'register', component: RegisterPageComponent, },
+      { path: '**', redirectTo: 'login', },
+    ]
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class AuthRoutingModule { }
+```
+
+Sin embargo, si en las rutas hijas, en el `redirectTo` usamos el `/`, estaríamos indicando que es una ruta raíz de la aplicación **(ruta absoluta)**. Por ejemplo, veamos ahora cómo quedaría el `redirectTo` con el `/`:
+
+```typescript
+const routes: Routes = [
+  {
+    path: '',
+    component: LayoutPageComponent,
+    canActivate: [canActivateAuthGuard],
+    children: [
+      { path: 'login', component: LoginPageComponent, },
+      { path: 'register', component: RegisterPageComponent, },
+      { path: '**', redirectTo: '/auth/login', },
+    ]
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class AuthRoutingModule { }
+```
+
+Observamos que, para que funcione el `redirectTo` en estas rutas hijas, necesitamos redirigir de manera absoluta especificando toda la ruta completa `{ path: '**', redirectTo: '/auth/login', }`
+
 ## pathMatch: 'full'
 
 Observamos que en las rutas principales definidas en la sección superior, nuestra ruta vacía tiene la propiedad **pathMatch: 'full'**:
 
 ```javascript
-{ path: '', redirectTo: 'heroes', pathMatch: 'full', }
+{ path: '', redirectTo: '/heroes', pathMatch: 'full', }
 ```
 
 **CONSIDERACIONES**

@@ -22,8 +22,10 @@ const routes: Routes = [
     path: '404',
     component: Error404PageComponent,
   },
-  { path: '', redirectTo: 'heroes', pathMatch: 'full', }, //www.my-web-site.com/ <--- '', pero debo ponerle el pathMatch='full' ya que por defecto todas las rutas tienen un string vacío al inicio
-  { path: '**', redirectTo: '404', }
+  //* www.my-web-site.com/ <--- '', pero debo ponerle el pathMatch='full' ya que por defecto
+  //* todas las rutas tienen un string vacío al inicio
+  { path: '', redirectTo: '/heroes', pathMatch: 'full', },
+  { path: '**', redirectTo: '/404', }
 ];
 
 @NgModule({
