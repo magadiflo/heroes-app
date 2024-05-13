@@ -257,9 +257,9 @@ Como resultado tenemos lo que se muestra en la imagen:
 
 ![json-server-running](./src/assets/json-server-running.png)
 
-## [Variables de entorno - Angular 15+](https://angular.io/guide/build#configuring-application-environments)
+## [Environments - Angular 15+](https://angular.io/guide/build#configuring-application-environments)
 
-Desde la versión 15 ya no vienen por defecto el directorio **/environments** donde defíamos en sus archivos nuestras variables de entorno. Para poder crearlas simplemente ejecutamos el siguiente comando:
+Desde la versión 15 ya no vienen por defecto el directorio **/environments** donde definíamos en sus archivos nuestras variables de entorno. Para poder crearlas simplemente ejecutamos el siguiente comando:
 
 ````bash
 ng generate environments
@@ -272,7 +272,7 @@ CREATE src/environments/environment.ts
 CREATE src/environments/environment.development.ts
 UPDATE angular.json
 ```
-Como estamos trabajando en desarrollo, nuestra **URL del json-server** lo configuramos en el archivo **environment.development.ts**:
+Dado que estamos trabajando en desarrollo, la url de la api que estamos consumiendo (en nuestro caso la **URL del json-server**), lo configuramos en el archivo **environment.development.ts**:
 
 ````javascript
 // environment.development.ts
@@ -289,6 +289,147 @@ export const environment = {
   apiUrl: '',
 };
 ````
+
+## Agregando Environments
+
+Para agregar nuevos environments debemos crear un archivo de typescript y configurar el `angular.json` además de agregar scripts en el `package.json`.
+
+1. Creamos el archivo que definirá environments para el entorno de `qa`. Este archivo debemos crearlo en el directorio `/environments`:
+
+```typescript
+// environment.qa.ts
+export const environment = {
+  apiUrl: 'http://azure-qa.com',
+};
+```
+
+2. Como segundo paso, debemos configurar el archivo creado en el paso anterior dentro del `angular.json`. En la sección `build` dentro de `configurations` veremos dos entornos configurados por defecto (production y development); nosotros copiaremos las configuraciones que se han definido para el `development` y lo pegamos a continuación renombrándolo a `qa` (será el nombre del environment) las partes donde dicen `development`:
+
+```json
+"build": {
+  "builder": "@angular-devkit/build-angular:browser",
+  "options": {
+    ...
+  },
+  "configurations": {
+    "production": {
+      "budgets": [
+        {
+          "type": "initial",
+          "maximumWarning": "500kb",
+          "maximumError": "1mb"
+        },
+        {
+          "type": "anyComponentStyle",
+          "maximumWarning": "2kb",
+          "maximumError": "4kb"
+        }
+      ],
+      "outputHashing": "all"
+    },
+    "development": {
+      "buildOptimizer": false,
+      "optimization": false,
+      "vendorChunk": true,
+      "extractLicenses": false,
+      "sourceMap": true,
+      "namedChunks": true,
+      "fileReplacements": [
+        {
+          "replace": "src/environments/environment.ts",
+          "with": "src/environments/environment.development.ts"
+        }
+      ]
+    },
+    "qa": {
+      "buildOptimizer": false,
+      "optimization": false,
+      "vendorChunk": true,
+      "extractLicenses": false,
+      "sourceMap": true,
+      "namedChunks": true,
+      "fileReplacements": [
+        {
+          "replace": "src/environments/environment.ts",
+          "with": "src/environments/environment.qa.ts"
+        }
+      ]
+    }
+  },
+  "defaultConfiguration": "production"
+}
+```
+
+
+3. Como siguiente paso, debemos agregar una nueva configuración en la sección de `serve` para poder desplegarlo de manera local. En esta sección también observamos los dos entornos que vienen por defecto (production y development), así que volvemos a copiar y pegar la configuración del development y lo renombramos a `qa`:
+
+```json
+"serve": {
+  "builder": "@angular-devkit/build-angular:dev-server",
+  "configurations": {
+    "production": {
+      "browserTarget": "heroes-app:build:production"
+    },
+    "development": {
+      "browserTarget": "heroes-app:build:development"
+    },
+    "qa": {
+      "browserTarget": "heroes-app:build:qa"
+    }
+  },
+  "defaultConfiguration": "development"
+},
+```
+
+4. Ya casi para finalizar, necesitamos crear un script para que nos facilite la ejecución de la aplicación de manenra más sencilla en el nuevo entorno que hemos agregado, así que en el `package.json` agregamos el siguiente script dentro de la sección de `scripts`. El nombre que debemos agregarle después de la bandera `--configuration` es el nombre que le hayamos asignado al nuevo environment dentro de la sección `configurations` del archivo `angular.json`. En nuestro caso lo definimos como `qa`.
+
+```json
+"scripts": {
+  "backend": "npx json-server --watch .\\data\\db.json",
+  "ng": "ng",
+  "start": "ng serve",
+  "build": "ng build",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test",
+  "qa-dev": "ng serve --configuration qa"
+},
+```
+
+5. Ejecutando aplicación con el nuevo environment agregado:
+
+```bash
+$ npm run qa-dev
+
+> heroes-app@0.0.0 qa-dev
+> ng serve --configuration qa
+
+√ Browser application bundle generation complete.
+
+Initial Chunk Files                            | Names                |  Raw Size
+vendor.js                                      | vendor               |   2.51 MB |
+styles.css, styles.js                          | styles               | 691.26 kB |
+polyfills.js                                   | polyfills            | 333.16 kB |
+main.js                                        | main                 |  18.36 kB |
+runtime.js                                     | runtime              |  12.62 kB |
+
+                                               | Initial Total        |   3.54 MB
+
+Lazy Chunk Files                               | Names                |  Raw Size
+default-src_app_material_material_module_ts.js | auth-auth-module     |   2.42 MB |
+src_app_heroes_heroes_module_ts.js             | heroes-heroes-module |  71.99 kB |
+src_app_auth_auth_module_ts.js                 | auth-auth-module     |  17.44 kB |
+
+Build at: 2024-05-13T23:13:23.894Z - Hash: 24408d5ac82fa107 - Time: 7677ms
+
+** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+
+
+√ Compiled successfully.
+```
+
+Si ejecutamos la aplicación, vemos que ahora la llamada se está haciendo a la url que configuramos en nuestro nuevo entorno:
+
+![new environmtn](./src/assets/test-new-environment.png)
 
 ## HeroesService - Traer información de los héroes
 
