@@ -8,6 +8,7 @@ import { ListPageComponent } from './pages/list-page/list-page.component';
 import { HeroPageComponent } from './pages/hero-page/hero-page.component';
 
 import { canActivateHeroesGuard } from '../auth/guards/heroes.guard';
+import { exitGuard } from './guards/exit.guard';
 
 
 const routes: Routes = [
@@ -16,7 +17,11 @@ const routes: Routes = [
     component: LayoutPageComponent,
     canActivate: [canActivateHeroesGuard],
     children: [
-      { path: 'new-hero', component: NewPageComponent, },
+      {
+        path: 'new-hero',
+        component: NewPageComponent,
+        canDeactivate: [exitGuard],
+      },
       { path: 'search', component: SearchPageComponent, },
       { path: 'edit/:id', component: NewPageComponent, },
       { path: 'list', component: ListPageComponent, },

@@ -455,10 +455,11 @@ export class HeroesService {
 
 # Sección: Protección de rutas
 
+---
 
 ## AuthService - Servicio de Authenticación
 
-En este capítulo hay un momendo que se habla de la referencia de objetos en Javascript y el **uso del método global structuredClone()**.
+En este capítulo hay un momento que se habla de la referencia de objetos en Javascript y el **uso del método global structuredClone()**.
 
 ### structuredClone()
 
@@ -513,7 +514,7 @@ export class AuthGuard implements CanLoad, CanActivate {
 }
 ````
 
-Actualmente, estas interfaces están deprecadas ya que ahora se está orientado al uso de tipo de funciones. ``CanMatchFn, CanActivateFn``, etc., es decir, no necesitamos crear una clase sino solo con funciones. Más adelante veremos el ejemplo.
+Actualmente, estas interfaces están deprecadas ya que ahora se está orientado al uso de tipo de funciones. `CanActivateFn, CanActivateChildFn, CanDeactivateFn, CanMatchFn`, etc., es decir, no necesitamos crear una clase sino solo con funciones. Más adelante veremos el ejemplo.
 
 Para poder crear Guards desde Angular CLI podemos ejecutar el siguiente comando ``ng g guard mi-guard`` tal como se muestra en la imagen inferior.
 
@@ -528,7 +529,7 @@ Para poder crear Guards desde Angular CLI podemos ejecutar el siguiente comando 
 > y luego lo unimos, tal como lo hice yo en esta sección.
 
 
-### ¿Qué son los Guards?
+## ¿Qué son los Guards?
 
 **[Fuente: Angular.io](https://angular.io/guide/router-tutorial-toh#milestone-5-route-guards)**
 
@@ -543,7 +544,7 @@ Son elementos que se utilizan para **controlar el acceso a ciertas rutas en una 
 ``El valor de retorno de un guard controla el comportamiento del enrutador:``
 
 - **true**, el proceso de la navegación continúa.
-- **false**, el proceso de la navegación se detiene y elusuario se queda quieto.
+- **false**, el proceso de la navegación se detiene y el usuario se queda quieto.
 - **UrlTree**, Se cancela la navegación actual y se inicia una nueva navegación al UrlTree devuelto.
 
 
@@ -557,14 +558,12 @@ Son elementos que se utilizan para **controlar el acceso a ciertas rutas en una 
 
 **Con la excepción de canMatch**, si algún guardia devuelve falso, **los guardias pendientes que no se han completado se cancelan** y se cancela toda la navegación. **Si un protector canMatch devuelve falso**, el **router continúa procesando el resto de las rutas** para ver si una configuración de ruta diferente coincide con la URL.
 
-En nuestro caso trabajaremos con **canActivate y el canMatch**:
-
-### canActivate: requiere autenticación
+## canActivate: requiere autenticación
 Las aplicaciones a menudo restringen el acceso a un área de funciones en función de quién es el usuario. Puede permitir el acceso solo a usuarios autenticados o a usuarios con un rol específico. Puede bloquear o limitar el acceso hasta que se active la cuenta del usuario.
 
 **El guard canActivate** es la herramienta para administrar estas reglas comerciales de navegación.
 
-### canMatch: protección del acceso no autorizado a los módulos de funciones
+## canMatch: protección del acceso no autorizado a los módulos de funciones
 
 Si observamos el HeroesRoutingModule, veremos que ya estamos protegiendo nuestro  HeroesModule con un guard canActivate que evita que los usuarios no autorizados accedan a las páginas de los héroes (list, new-hero, search, etc.). Redirige a la página de inicio de sesión si el usuario no está autorizado o como en nuestro cas, no está logueado.
 
@@ -574,9 +573,16 @@ Si observamos el HeroesRoutingModule, veremos que ya estamos protegiendo nuestro
 
 Un guard canMatch controla si el enrutador intenta hacer coincidir una ruta. Esto le permite tener varias configuraciones de ruta que comparten la misma ruta pero se combinan en función de diferentes condiciones. Este enfoque permite que el enrutador coincida con la ruta comodín en su lugar.
 
-## Creando nuestros Guards para las rutas heroes y auth
+## CanDeactivate: comprueba cambios no guardados antes de salir de la ruta
 
-Guard **CanMatchFn** y **CanActivateFn** para la ruta **heroes**.
+Evitar que los usuarios abandonen una ruta puede evitar que pierdan su progreso en un formulario o algo similar. Angular lo hace fácil con CanDeactivate Guard, y es aún más sencillo escribir con el formato (ya no tan nuevo) de Guards funcionales.
+
+## Creando guards canMatch y canActivate para rutas heroes y auth
+
+En este apartado trabajaremos con los guards `canMatch` y `canActivate`:
+
+Creamos los guards **CanMatchFn** y **CanActivateFn** para la ruta **heroes**.
+
 ````typescript
 import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
@@ -610,7 +616,8 @@ const checkAuthStatus = (): Observable<boolean> => {
 }
 ````
 
-Guard **CanMatchFn** y **CanActivateFn** para la ruta **auth**.
+Creamos los guards **CanMatchFn** y **CanActivateFn** para la ruta **auth**.
+
 ````typescript
 import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
@@ -644,11 +651,9 @@ const checkAuthStatus = (): Observable<boolean> => {
 }
 ````
 
-## Protegiendo nuestras rutas heroes y auth
+## Usando canMatch y canActivate para proteger las rutas de heroes y auth
 
-El siguiente fragmento de código corresponde a las rutas principales del proyecto y si observamos, estamos trabajando con **LazyLoading**,
-por lo tanto, aquí utilizaremos el método de protección **canMatch**, de esta manera, como lo explicábamos en la parte superior, 
-**si el guard retorna un false, el módulo nunca será cargado:**
+El siguiente fragmento de código corresponde a las rutas principales del proyecto y si observamos, estamos trabajando con **LazyLoading**, por lo tanto, aquí utilizaremos el método de protección **canMatch**, de esta manera, como lo explicábamos en la parte superior, **si el guard retorna un false, el módulo nunca será cargado:**
 
 ````typescript
 /* other imports */
@@ -729,3 +734,172 @@ const routes: Routes = [
 })
 export class AuthRoutingModule { }
 ````
+
+## Creando y usando canDeactivate para prevenir el abandono accidental de una ruta
+
+Antes de crear el guard vamos a crear el componente de nuestro diálogo donde usaremos módulos de Angular material.
+
+```html
+<h1 mat-dialog-title>Salir del formulario</h1>
+<div mat-dialog-content>
+  <p>Si sale perderá la información que acaba de ingresar, ¿desea salir?</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-button [mat-dialog-close]="false" cdkFocusInitial>No</button>
+  <button mat-button [mat-dialog-close]="true">Sí</button>
+</div>
+```
+
+```typescript
+@Component({
+  selector: 'app-confirm-dialog-exit',
+  templateUrl: './confirm-dialog-exit.component.html',
+  styles: [
+  ]
+})
+export class ConfirmDialogExitComponent {
+
+}
+```
+
+Ahora que ya hemos creado el componente de diálogo, crearemos a continuación el guard llamado `exitGuard` que será del tipo `canDeactivate`. Es importante notar que el guard `canDeactivate` es un tipo genérico, es decir, está esperando que se le defina un tipo de objeto. En nuestro caso, el tipo de objeto que le pasaremos será el de una interfaz que crearemos en la parte superior llamado `CanComponentDeactivate`.
+
+Crearemos la interfaz `CanComponentDeactivate` para que este `guard` sea reutilizable, es decir, si mañana más tarde queremos usar este guard en otro componente, lo podremos hacer dado que este guard va a estar pendiente de la interfaz `CanComponentDeactivate` que le hemos pasado por parámetro y simplemente la clase de componente que quiera usar este guard, tendrá que implementar la interfaz `CanComponentDeactivate`. Supongamos que el componente `NewPageComponent` va a estar asociado con este guard, entonces podríamos haberlo colocado así `CanDeactivateFn<NewPageComponent>`, pero hacerlo de esa manera estaríamos acoplando el guard a que solo lo use el componente `NewPageComponent`, mientras que si usamos la interfaz `CanComponentDeactivate`, lo estaríamos haciendo más flexible y reutilizable.
+
+```typescript
+export type CanDeactivateType = Observable<boolean> | boolean;
+export interface CanComponentDeactivate {
+  canDeactivate: () => CanDeactivateType;
+}
+
+export const exitGuard: CanDeactivateFn<CanComponentDeactivate> = (component, currentRoute, currentState, nextState) => {
+  const showDialog = component.canDeactivate();
+
+  if (showDialog) {
+    const dialog = inject(MatDialog);
+    const dialogRef = dialog.open(ConfirmDialogExitComponent);
+    return dialogRef.afterClosed()
+      .pipe(
+        tap(value => console.log('Respuesta presionada en el dialog: ' + value))
+      );
+  }
+
+  return true;
+};
+```
+
+Observar que el método `component.canDeactivate()` está esperando recibir un valor del tipo `Observable<boolean> | boolean`. En nuestro caso recibirá un `booleano` y en función de él abrirá el diálogo para preguntarle al usuario si desea salir de la página actual o no.
+
+El componente al que asociaremos este guard será el `NewPageComponent` por lo que implementaremos la interfaz `CanComponentDeactivate` y definiremos su método `canDeactivate()`:
+
+```typescript
+
+@Component({
+  selector: 'app-new-page',
+  templateUrl: './new-page.component.html',
+  styles: [
+  ]
+})
+export class NewPageComponent implements OnInit, CanComponentDeactivate {
+
+  public heroForm: FormGroup = new FormGroup({
+    id: new FormControl<string>(''),
+    superhero: new FormControl<string>('', { nonNullable: true }),
+    publisher: new FormControl<Publisher>(Publisher.DCComics),
+    alter_ego: new FormControl<string>(''),
+    first_appearance: new FormControl<string>(''),
+    characters: new FormControl<string>(''),
+    alt_img: new FormControl<string>(''),
+  });
+
+  /* other codes */
+
+  canDeactivate(): CanDeactivateType {
+    return this._showDialog();
+  }
+
+  private _showDialog(): boolean {
+    const keys = Object.keys(this.heroForm.controls).filter(key => key !== 'publisher' && key !== 'id');
+    const values = keys.map(key => this.heroForm.get(key)?.value);
+    const showDialog = values.some(value => value !== '');
+    return showDialog;
+  }
+
+  /* other codes */
+}
+```
+
+Lo que estamos definiendo dentro del método `canDeactivate()` nos permitirá verificar si el usuario ha escrito algo en alguno de los campos del formulario. Estaremos pendiente de todos los campos con excepción del campo `publisher` y `id`, es decir, si el usuario ha escrito algo en cualquiera de los campos que no sea `publisher` ni `id`.
+
+Finalmente, necesitamos usar el guard `exitGuard` en la ruta que queremos proteger:
+
+```typescript
+const routes: Routes = [
+  {
+    path: '',
+    component: LayoutPageComponent,
+    canActivate: [canActivateHeroesGuard],
+    children: [
+      {
+        path: 'new-hero',
+        component: NewPageComponent,
+        canDeactivate: [exitGuard],
+      },
+      {...},
+    ],
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class HeroesRoutingModule { }
+```
+
+A continuación veamos el guard `canDeactivate` en acción:
+
+![dialog canDeactivate](./src/assets/dialog-can-deactivate.png)
+
+## Previniendo el reload del navegador
+
+Con esto ya hemos visto el funcionamiento básico del guard `CanDeactivate`, pero antes de terminar es importante recalcar que **el funcionamiento de este guard está limitado solo a la navegación interna de la aplicación.** Esto quiere decir que el guard que acabamos de implementar, no nos protegería si por ejemplo refrescáramos la página o cerráramos la pestaña actual del navegador.
+
+Para este tipo de protección adicional tendríamos que apoyarnos en el evento `beforeunload` de la ventana del navegador.
+
+Para ello podríamos por ejemplo añadir un `@HostListener` en el componente a proteger el cual haga uso del método `_showDialog()` para determinar si mostramos o no el diálogo del navegador.
+
+```typescript
+@Component({
+  selector: 'app-new-page',
+  templateUrl: './new-page.component.html',
+  styles: [
+  ]
+})
+export class NewPageComponent implements OnInit, CanComponentDeactivate {
+
+  /* other codes */
+
+  @HostListener('window:beforeunload', ['$event'])
+  public onBeforeReload(event: BeforeUnloadEvent) {
+    if (this._showDialog()) {
+      event.preventDefault();
+    }
+    return;
+  }
+
+  private _showDialog(): boolean {
+    const keys = Object.keys(this.heroForm.controls).filter(key => key !== 'publisher' && key !== 'id');
+    const values = keys.map(key => this.heroForm.get(key)?.value);
+    const showDialog = values.some(value => value !== '');
+    return showDialog;
+  }
+
+  /* other codes */
+}
+```
+
+A continuación veamos qué pasa si agregamos algunos datos al formulario e intentamos hacer refresh del navegador:
+
+
+![prevent](./src/assets/prevent-refresh-or-exit-page.png)

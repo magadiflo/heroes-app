@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { filter, switchMap, tap } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
 
 import { Hero, Publisher } from '../../interfaces/hero.interface';
 import { HeroesService } from '../../services/heroes.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { CanComponentDeactivate, CanDeactivateType } from '../../guards/exit.guard';
 
 @Component({
   selector: 'app-new-page',
@@ -15,7 +16,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   styles: [
   ]
 })
-export class NewPageComponent implements OnInit {
+export class NewPageComponent implements OnInit, CanComponentDeactivate {
 
   public heroForm: FormGroup = new FormGroup({
     id: new FormControl<string>(''),
@@ -55,6 +56,18 @@ export class NewPageComponent implements OnInit {
     { id: 'Marvel Comics', description: 'Marvel - Comics' }
   ];
 
+  @HostListener('window:beforeunload', ['$event'])
+  public onBeforeReload(event: BeforeUnloadEvent) {
+    if (this._showDialog()) {
+      event.preventDefault();
+    }
+    return;
+  }
+
+  canDeactivate(): CanDeactivateType {
+    return this._showDialog();
+  }
+
   onSubmit(): void {
     if (this.heroForm.invalid) return;
 
@@ -63,6 +76,13 @@ export class NewPageComponent implements OnInit {
     } else {
       this._saveHero();
     }
+  }
+
+  private _showDialog(): boolean {
+    const keys = Object.keys(this.heroForm.controls).filter(key => key !== 'publisher' && key !== 'id');
+    const values = keys.map(key => this.heroForm.get(key)?.value);
+    const showDialog = values.some(value => value !== '');
+    return showDialog;
   }
 
   private _saveHero() {

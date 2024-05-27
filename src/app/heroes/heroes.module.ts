@@ -14,6 +14,7 @@ import { CardComponent } from './components/card/card.component';
 
 import { HeroImagePipe } from './pipes/hero-image.pipe';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogExitComponent } from './components/confirm-dialog-exit/confirm-dialog-exit.component';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     SearchPageComponent,
     CardComponent,
     HeroImagePipe,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    ConfirmDialogExitComponent,
   ],
   imports: [
     CommonModule,
