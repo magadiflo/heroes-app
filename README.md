@@ -735,6 +735,238 @@ const routes: Routes = [
 export class AuthRoutingModule { }
 ````
 
+## Otro uso del CanMatch: misma ruta, distintos componentes
+
+En apartados superiores decíamos que si usamos el `canMatch` en una ruta que usa `LazyLoading` evitamos que el módulo se descargue si es que el `canMatch` retorna `false`, es decir, es similar a cómo funcionaba el `CanLoad` que actualmente ya está deprecado. Sin embargo, tiene una característica adicional interesante, **supongamos que queremos utilizar una misma ruta en Angular, pero renderizar componentes diferentes según el rol, alguna lógica de negocio, etc., normalmente lo podemos hacer implementando alguna estrategia de redirección como el uso condicionales if u otra estrategia.** Ahora, con esta nueva característica que nos proporciona el `canMatch` podemos implementar esa funcionalidad sin mayor problemas.
+
+Si la implementación del `CanMatch` devuelve `true`, la navegación continuará y el enrutador utilizará el primer componente con que haga `"match"`. Para entenderlo mejor, agregaremos la siguiente funcionalidad: "Al momento de loguearnos, vamos a seleccionar el tipo de role con el que ingresaremos: `admin` o `user`, posteriormente, en el dashboard habrá un botón para irnos a la ruta `/user`.
+Esta ruta mostrará el componente según el rol con el que se haya hecho login. Para eso, únicamente usaremos el `canMatch`.
+
+### Modificando el login para almacenar el role
+
+En el login agregaremos el select para elegir ingresar como `admin` o `user`:
+
+```html
+<div class="flex flex-column">
+  <span class="text-lg mb-4">Login</span>
+  <mat-form-field>
+    <mat-label>Usuario</mat-label>
+    <input type="text" matInput placeholder="Nombre de usuario">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Contraseña</mat-label>
+    <input type="password" matInput placeholder="Contraseña">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Select Role</mat-label>
+    <mat-select [(value)]="selectRole">
+      <mat-option *ngFor="let role of optionRoles" [value]="role.value">
+        {{role.viewValue}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button (click)="onLogin()" mat-button mat-flat-button color="primary">
+    <mat-icon>login</mat-icon> Ingresar
+  </button>
+  <div class="flex justify-content-end mt-5">
+    <a [routerLink]="['/auth', 'register']">Regístrate aquí</a>
+  </div>
+</div>
+```
+
+En el componente de typescript del login, recogemos la selección del rol y lo pasamos al servicio donde se realizará el login:
+
+```typescript
+export type Role = 'admin' | 'user';
+export interface SelectRole {
+  value: Role;
+  viewValue: string;
+}
+
+@Component({
+  selector: 'app-login-page',
+  templateUrl: './login-page.component.html',
+  styles: [
+  ]
+})
+export class LoginPageComponent {
+
+  public selectRole = 'user';
+  public optionRoles: SelectRole[] = [
+    { viewValue: 'Admin', value: 'admin' },
+    { viewValue: 'User', value: 'user' },
+  ];
+
+  constructor(
+    private _router: Router,
+    private _authService: AuthService) { }
+
+  onLogin(): void {
+    console.log(this.selectRole);
+    this._authService.login('user@gmail.com', '123456', this.selectRole)
+      .subscribe(user => {
+        console.log(user);
+        this._router.navigate(['/heroes', 'list']);
+      });
+  }
+
+}
+```
+
+En el `auth.service` modificamos el `login()` para recibir adicionalmente al rol seleccionado y guardarlo en el `localStorage`:
+
+```typescript
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+
+  /* other codes */
+
+  login(email: string, password: string, role: string): Observable<User> {
+    return this._http.get<User>(`${this.apiUrl}/users/1`)
+      .pipe(
+        tap(user => this.user = user),
+        tap(user => {
+          localStorage.setItem('token', `${user.id}.asrfa.asdf.asdf`);
+          localStorage.setItem('role', role);
+        }),
+      );
+  }
+}
+```
+
+### Creando módulo user
+
+Crearemos ahora el módulo de `user` junto a su módulo de ruta.
+
+```typescript
+@NgModule({
+  declarations: [
+    UserAdminComponent,
+    UserBasicComponent,
+    LayoutUserComponent
+  ],
+  imports: [
+    CommonModule,
+    UserRoutingModule
+  ]
+})
+export class UserModule { }
+```
+
+El módulo de ruta `user-routing.module.ts` tendrá el siguiente contenido. Es importante notar que aquí estamos haciendo uso del `canMatch`. **¿Cómo funciona?**, bueno, en el módulo `app-routing.module.ts` definiremos una ruta para el módulo de `user` que estará cargándolo usando `LazyLoading`. Este path será `/user`. Ahora, cuando el usuario intente navegar hacia esa ruta padre `/user`, la navegación entrará a este módulo `user-routing.module.ts`, y como tenemos definido en las rutas hijas los `path=''` en vacío, entonces para que Angular decida qué ruta mostrar, se basará en el `canMatch`, el primero que devuelva verdadero será el componente a mostrar. Supongamos que hemos ingresado con el role `user`, entonces, el `canMatch` usará la función personalizada `isRole` para determinar si es el rol con el que se ha logueado, si es true, entonces usará el componente asociado a esa ruta, de esa manera, podemos usar la misma ruta (path) para mostrar distintos componentes.
+
+
+```typescript
+const isRole = (role: string) => {
+  const storedRole = localStorage.getItem('role');
+  return role === storedRole;
+};
+
+const routes: Routes = [
+  {
+    path: '',
+    component: LayoutUserComponent,
+    children: [
+      {
+        path: '',
+        component: UserAdminComponent,
+        canMatch: [() => isRole('admin')],
+      },
+      {
+        path: '',
+        component: UserBasicComponent,
+        canMatch: [() => isRole('user')],
+      },
+    ],
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class UserRoutingModule { }
+```
+
+El módulo principal de la aplicacíon `app-routing.module.ts` se muestra a continuación:
+
+```typescript
+const routes: Routes = [
+  /* other routes */
+  {
+    path: 'user',
+    title: 'User Role',
+    loadChildren: () => import('./user/user.module').then(m => m.UserModule),
+    canMatch: [canMatchUserGuard]
+  },
+  /* other routes */
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+```
+
+Es importante notar que en las rutas principales que se muestran en el código anterior, se está haciendo uso de un `canMatch`, pero este `canMatch` está funcionando como el `canLoad`, es decir, previniendo únicamente que se descargue el módulo, es decir, estamos usando este `canMatch` como lo hemos venido usando desde el principio:
+
+```typescript
+export const canMatchUserGuard: CanMatchFn = (route, segments) => {
+  console.log('CanMatch User');
+  return checkAuthStatus();
+};
+
+const checkAuthStatus = (): Observable<boolean> => {
+  const router = inject(Router);
+  const authService = inject(AuthService);
+  return authService.checkAuthentication()
+    .pipe(
+      tap(isAuthenticated => console.log("¿está autenticado?: " + isAuthenticated)),
+      tap(isAuthenticated => {
+        if (!isAuthenticated) {
+          router.navigate(['/auth', 'login']);
+        }
+      }),
+    );
+}
+```
+
+A continuación se muestran los componentes html tanto del `user-admin` como del `user-basic`. No muestro el componente de typescript dado que no hay contenido.
+
+```html
+<div class="container">
+  <h1>ADMIN</h1>
+  <button [routerLink]="['/heroes']">Lista de héroes</button>
+</div>
+```
+
+```html
+<div class="container">
+  <h1>USER</h1>
+  <button [routerLink]="['/heroes']">Lista de héroes</button>
+</div>
+```
+
+Ahora, en el componente html del `layout-page.component.html` agregaremos un botón que nos rediriga a la ruta `/user` para ver el funcionamiento del `canMatch`. Con eso estaremos mostrando el componente user o admin según cómo hayamos iniciado sesión:
+
+```html
+<button [routerLink]="['/user']" mat-button>
+  <mat-icon>person</mat-icon> User
+</button>
+```
+
+### Probando nueva funcionalidad del canMath: mostrar distintos componentes usando una misma ruta
+
+Como observamos en las imágenes siguientes, vemos que estamos usando la misma ruta `http://localhost:4200/user` pero mostrando distintos componentes, según el rol que hayamos seleccionado al momento de loguearnos. Esta funcionalidad es gracias al uso del `canMatch`:
+
+![admin](./src/assets/can-match-admin.png)
+
+![user](./src/assets/can-match-user.png)
+
+
 ## Creando y usando canDeactivate para prevenir el abandono accidental de una ruta
 
 Antes de crear el guard vamos a crear el componente de nuestro diálogo donde usaremos módulos de Angular material.
