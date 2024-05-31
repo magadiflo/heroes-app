@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, CanLoad } from '@angular/router';
 
 import { Error404PageComponent } from './shared/pages/error404-page/error404-page.component';
 
 import { canMatchHeroesGuard } from './auth/guards/heroes.guard';
 import { canMatchAuthGuard } from './auth/guards/auth.guard';
+import { canMatchUserGuard } from './user/guards/user.guard';
 
 
 const routes: Routes = [
@@ -17,6 +18,12 @@ const routes: Routes = [
     path: 'heroes',
     loadChildren: () => import('./heroes/heroes.module').then(m => m.HeroesModule),
     canMatch: [canMatchHeroesGuard],
+  },
+  {
+    path: 'user',
+    title: 'User Role',
+    loadChildren: () => import('./user/user.module').then(m => m.UserModule),
+    canMatch: [canMatchUserGuard]
   },
   {
     path: '404',
