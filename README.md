@@ -735,6 +735,108 @@ const routes: Routes = [
 export class AuthRoutingModule { }
 ````
 
+## Otro uso del CanMatch: misma ruta, distintos componentes
+
+En apartados superiores decíamos que si usamos el `canMatch` en una ruta que usa `LazyLoading` evitamos que el módulo se descargue si es que el `canMatch` retorna `false`, es decir, es similar a cómo funcionaba el `CanLoad` que actualmente ya está deprecado. Sin embargo, tiene una característica adicional interesante, **supongamos que queremos utilizar una misma ruta en Angular, pero renderizar componentes diferentes según el rol, alguna lógica de negocio, etc., normalmente lo podemos hacer implementando alguna estrategia de redirección como el uso condicionales if u otra estrategia.** Ahora, con esta nueva característica que nos proporciona el `canMatch` podemos implementar esa funcionalidad sin mayor problemas.
+
+Si la implementación del `CanMatch` devuelve `true`, la navegación continuará y el enrutador utilizará el primer componente con que haga `"match"`. Para entenderlo mejor, agregaremos la siguiente funcionalidad: "Al momento de loguearnos, vamos a seleccionar el tipo de role con el que ingresaremos: `admin` o `user`, posteriormente, en el dashboard habrá un botón para irnos a la ruta `/user`.
+Esta ruta mostrará el componente según el rol con el que se haya hecho login. Para eso, únicamente usaremos el `canMatch`.
+
+### Modificando el login para almacenar el role
+
+En el login agregaremos el select para elegir ingresar como `admin` o `user`:
+
+```html
+<div class="flex flex-column">
+  <span class="text-lg mb-4">Login</span>
+  <mat-form-field>
+    <mat-label>Usuario</mat-label>
+    <input type="text" matInput placeholder="Nombre de usuario">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Contraseña</mat-label>
+    <input type="password" matInput placeholder="Contraseña">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Select Role</mat-label>
+    <mat-select [(value)]="selectRole">
+      <mat-option *ngFor="let role of optionRoles" [value]="role.value">
+        {{role.viewValue}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button (click)="onLogin()" mat-button mat-flat-button color="primary">
+    <mat-icon>login</mat-icon> Ingresar
+  </button>
+  <div class="flex justify-content-end mt-5">
+    <a [routerLink]="['/auth', 'register']">Regístrate aquí</a>
+  </div>
+</div>
+```
+
+En el componente de typescript del login, recogemos la selección del rol y lo pasamos al servicio donde se realizará el login:
+
+```typescript
+export type Role = 'admin' | 'user';
+export interface SelectRole {
+  value: Role;
+  viewValue: string;
+}
+
+@Component({
+  selector: 'app-login-page',
+  templateUrl: './login-page.component.html',
+  styles: [
+  ]
+})
+export class LoginPageComponent {
+
+  public selectRole = 'user';
+  public optionRoles: SelectRole[] = [
+    { viewValue: 'Admin', value: 'admin' },
+    { viewValue: 'User', value: 'user' },
+  ];
+
+  constructor(
+    private _router: Router,
+    private _authService: AuthService) { }
+
+  onLogin(): void {
+    console.log(this.selectRole);
+    this._authService.login('user@gmail.com', '123456', this.selectRole)
+      .subscribe(user => {
+        console.log(user);
+        this._router.navigate(['/heroes', 'list']);
+      });
+  }
+
+}
+```
+
+En el `auth.service` modificamos el `login()` para recibir adicionalmente al rol seleccionado y guardarlo en el `localStorage`:
+
+```typescript
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+
+  /* other codes */
+
+  login(email: string, password: string, role: string): Observable<User> {
+    return this._http.get<User>(`${this.apiUrl}/users/1`)
+      .pipe(
+        tap(user => this.user = user),
+        tap(user => {
+          localStorage.setItem('token', `${user.id}.asrfa.asdf.asdf`);
+          localStorage.setItem('role', role);
+        }),
+      );
+  }
+}
+```
+
+
 ## Creando y usando canDeactivate para prevenir el abandono accidental de una ruta
 
 Antes de crear el guard vamos a crear el componente de nuestro diálogo donde usaremos módulos de Angular material.

@@ -34,11 +34,14 @@ export class AuthService {
       );
   }
 
-  login(email: string, password: string): Observable<User> {
+  login(email: string, password: string, role: string): Observable<User> {
     return this._http.get<User>(`${this.apiUrl}/users/1`)
       .pipe(
         tap(user => this.user = user),
-        tap(user => localStorage.setItem('token', 'asrfa.asdf.asdf')),
+        tap(user => {
+          localStorage.setItem('token', `${user.id}.asrfa.asdf.asdf`);
+          localStorage.setItem('role', role);
+        }),
       );
   }
 
