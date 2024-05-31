@@ -836,6 +836,77 @@ export class AuthService {
 }
 ```
 
+### Creando módulo user
+
+Crearemos ahora el módulo de `user` junto a su módulo de ruta.
+
+```typescript
+@NgModule({
+  declarations: [
+    UserAdminComponent,
+    UserBasicComponent,
+    LayoutUserComponent
+  ],
+  imports: [
+    CommonModule,
+    UserRoutingModule
+  ]
+})
+export class UserModule { }
+```
+
+El módulo de ruta `user-routing.module.ts` tendrá el siguiente contenido. Es importante notar que aquí estamos haciendo uso del `canMatch`. **¿Cómo funciona?**, bueno, en el módulo `app-routing.module.ts` definiremos una ruta para el módulo de `user` que estará cargándolo usando `LazyLoading`. Este path será `/user`. Ahora, cuando el usuario intente navegar hacia esa ruta padre `/user`, la navegación entrará a este módulo `user-routing.module.ts`, y como tenemos definido en las rutas hijas los `path=''` en vacío, entonces para que Angular decida qué ruta mostrar, se basará en el `canMatch`, el primero que devuelva verdadero será el componente a mostrar. Supongamos que hemos ingresado con el role `user`, entonces, el `canMatch` usará la función personalizada `isRole` para determinar si es el rol con el que se ha logueado, si es true, entonces usará el componente asociado a esa ruta, de esa manera, podemos usar la misma ruta (path) para mostrar distintos componentes.
+
+
+```typescript
+const isRole = (role: string) => {
+  const storedRole = localStorage.getItem('role');
+  return role === storedRole;
+};
+
+const routes: Routes = [
+  {
+    path: '',
+    component: LayoutUserComponent,
+    children: [
+      {
+        path: '',
+        component: UserAdminComponent,
+        canMatch: [() => isRole('admin')],
+      },
+      {
+        path: '',
+        component: UserBasicComponent,
+        canMatch: [() => isRole('user')],
+      },
+    ],
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class UserRoutingModule { }
+```
+
+
+A continuación se muestran los componentes html tanto del `user-admin` como del `user-basic`. No muestro el componente de typescript dado que no hay contenido.
+
+```html
+<div class="container">
+  <h1>ADMIN</h1>
+  <button [routerLink]="['/heroes']">Lista de héroes</button>
+</div>
+```
+
+```html
+<div class="container">
+  <h1>USER</h1>
+  <button [routerLink]="['/heroes']">Lista de héroes</button>
+</div>
+```
+
 
 ## Creando y usando canDeactivate para prevenir el abandono accidental de una ruta
 
