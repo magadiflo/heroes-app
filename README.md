@@ -958,6 +958,14 @@ Ahora, en el componente html del `layout-page.component.html` agregaremos un bot
 </button>
 ```
 
+### Probando nueva funcionalidad del canMath: mostrar distintos componentes usando una misma ruta
+
+Como observamos en las imágenes siguientes, vemos que estamos usando la misma ruta `http://localhost:4200/user` pero mostrando distintos componentes, según el rol que hayamos seleccionado al momento de loguearnos. Esta funcionalidad es gracias al uso del `canMatch`:
+
+![admin](./src/assets/can-match-admin.png)
+
+![user](./src/assets/can-match-user.png)
+
 
 ## Creando y usando canDeactivate para prevenir el abandono accidental de una ruta
 
