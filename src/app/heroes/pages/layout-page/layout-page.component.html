@@ -19,6 +19,10 @@
       <mat-icon>menu</mat-icon>
     </button>
     <span class="spacer"></span>
+    <button [routerLink]="['/user']" mat-button>
+      <mat-icon>person</mat-icon> User
+    </button>
+    <span class="spacer"></span>
     <span>{{ user?.email }}</span>
     <button (click)="onLogout()" mat-button>
       <mat-icon>logout</mat-icon> Logout

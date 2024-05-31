@@ -890,6 +890,27 @@ const routes: Routes = [
 export class UserRoutingModule { }
 ```
 
+El módulo principal de la aplicacíon `app-routing.module.ts` se muestra a continuación:
+
+```typescript
+const routes: Routes = [
+  /* other routes */
+  {
+    path: 'user',
+    title: 'User Role',
+    loadChildren: () => import('./user/user.module').then(m => m.UserModule),
+    canMatch: [canMatchUserGuard]
+  },
+  /* other routes */
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+```
+
 
 A continuación se muestran los componentes html tanto del `user-admin` como del `user-basic`. No muestro el componente de typescript dado que no hay contenido.
 
@@ -905,6 +926,14 @@ A continuación se muestran los componentes html tanto del `user-admin` como del
   <h1>USER</h1>
   <button [routerLink]="['/heroes']">Lista de héroes</button>
 </div>
+```
+
+Ahora, en el componente html del `layout-page.component.html` agregaremos un botón que nos rediriga a la ruta `/user` para ver el funcionamiento del `canMatch`. Con eso estaremos mostrando el componente user o admin según cómo hayamos iniciado sesión:
+
+```html
+<button [routerLink]="['/user']" mat-button>
+  <mat-icon>person</mat-icon> User
+</button>
 ```
 
 
