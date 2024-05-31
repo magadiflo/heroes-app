@@ -911,6 +911,28 @@ const routes: Routes = [
 export class AppRoutingModule { }
 ```
 
+Es importante notar que en las rutas principales que se muestran en el código anterior, se está haciendo uso de un `canMatch`, pero este `canMatch` está funcionando como el `canLoad`, es decir, previniendo únicamente que se descargue el módulo, es decir, estamos usando este `canMatch` como lo hemos venido usando desde el principio:
+
+```typescript
+export const canMatchUserGuard: CanMatchFn = (route, segments) => {
+  console.log('CanMatch User');
+  return checkAuthStatus();
+};
+
+const checkAuthStatus = (): Observable<boolean> => {
+  const router = inject(Router);
+  const authService = inject(AuthService);
+  return authService.checkAuthentication()
+    .pipe(
+      tap(isAuthenticated => console.log("¿está autenticado?: " + isAuthenticated)),
+      tap(isAuthenticated => {
+        if (!isAuthenticated) {
+          router.navigate(['/auth', 'login']);
+        }
+      }),
+    );
+}
+```
 
 A continuación se muestran los componentes html tanto del `user-admin` como del `user-basic`. No muestro el componente de typescript dado que no hay contenido.
 
